@@ -19,13 +19,13 @@ The App features "optimistic updates", meaning that we do not wait for responses
 
 Here are the issues you need to find solutions for:
 
-- [] In the current implementation, creating a new person will result with two persons being displayed on the Client
+- [x] In the current implementation, creating a new person will result with two persons being displayed on the Client
 
 - [] Editing the name of person that has not been persisted on the Server yet (visible by a negative ID on the left side) will result with a new person being created
 
 - [] Editing the name of a person multiple times in quick succession may result with a random name ending up on the Client, due to the latency
 
-- [] Editing the name of a person multiple times in quick succession, for example once to "123" and then to "456", will result with the App showing "456", then as the response for the first request arrives "123", later on again "456" for the second request - we want to show only the last version the user has submitted
+- [x] Editing the name of a person multiple times in quick succession, for example once to "123" and then to "456", will result with the App showing "456", then as the response for the first request arrives "123", later on again "456" for the second request - we want to show only the last version the user has submitted
 
 ## Rules / Notes
 

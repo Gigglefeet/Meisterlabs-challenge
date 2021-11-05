@@ -22,6 +22,7 @@ class Server {
       }))
       .then((person) => {
         state.persons = state.persons.add(person);
+
         return person;
       });
   }

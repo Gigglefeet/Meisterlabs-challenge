@@ -30,4 +30,21 @@ export default class Persons {
   upsert(person) {
     return this.has(person) ? this.update(person) : this.add(person);
   }
+
+  swap(personOld, personNew) {
+    const state = this.state.map((entry) => {
+      return entry.id === personOld.id ? personNew : entry;
+    });
+
+    return new Persons(state);
+  }
+
+  remove(person) {
+    const state = this.state.filter((entry) => entry.id !== person.id);
+    return new Persons(state);
+  }
+
+  revertChanges(personOld, isCreate) {
+    return !isCreate ? this.update(personOld) : this.remove(personOld);
+  }
 }

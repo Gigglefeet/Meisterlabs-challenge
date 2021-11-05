@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import Persons from './utils/Persons';
 import Server from './Server';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 let id = 0;
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export default class Client extends Component {
   constructor() {
@@ -10,7 +16,21 @@ export default class Client extends Component {
 
     this.state = {
       persons: new Persons(),
+      openSnackBar: false,
     };
+  }
+
+  handleOpenSnackbar() {
+    console.log(this.state);
+    this.setState((state) => ({
+      openSnackBar: true,
+    }));
+  }
+
+  handleCloseSnackbar() {
+    this.setState((state) => ({
+      openSnackBar: false,
+    }));
   }
 
   createPerson() {
@@ -19,6 +39,8 @@ export default class Client extends Component {
       id: --id,
     };
 
+    // Person created instantly on the front-end (no request to server yet)
+    // UI changes: new person on your screen
     this.setState((state) => ({
       persons: state.persons.add(person),
     }));
@@ -50,12 +72,31 @@ export default class Client extends Component {
 
     const method = isCreate ? 'post' : 'patch';
 
-    Server[method](person).then(this.onSaveSuccess);
+    // Send request to server to save person
+    // If the response is OK, we do nothing, because the person is already created on the front-end
+
+    //If the response is not OK (ex. status: 400), we call this.onSaveFailure
+    Server[method](person)
+      .then((personNew) => {
+        this.onSaveSuccess(person, personNew, isCreate);
+      })
+      .catch((err) => {
+        this.onSaveFailure(person, isCreate);
+      });
   }
 
-  onSaveSuccess = (person) => {
+  onSaveFailure = (personOld, isCreate) => {
+    // Remove the person from front-end
     this.setState((state) => ({
-      persons: state.persons.upsert(person),
+      persons: state.persons.revertChanges(personOld, isCreate),
+    }));
+  };
+
+  onSaveSuccess = (personOld, personNew, isCreate) => {
+    this.handleOpenSnackbar();
+    if (!isCreate) return;
+    this.setState((state) => ({
+      persons: state.persons.swap(personOld, personNew),
     }));
   };
 
@@ -74,6 +115,22 @@ export default class Client extends Component {
         >
           Save Name
         </button>
+        <Snackbar
+          open={this.state.openSnackBar}
+          autoHideDuration={6000}
+          onClose={() => {
+            this.handleCloseSnackbar();
+          }}
+        >
+          <Alert
+            onClose={() => {
+              this.handleCloseSnackbar();
+            }}
+            severity="success"
+          >
+            Your changes have been saved on the Server!
+          </Alert>
+        </Snackbar>
       </div>
     ));
   }
@@ -81,12 +138,17 @@ export default class Client extends Component {
   render() {
     return (
       <div className="challenge">
-        <button
+        {/* <button
           className="challenge-create-person-button"
           onClick={this.onClickCreatePerson}
         >
           Create Person
-        </button>
+        </button> */}
+        <label className="rocker">
+          <input onClick={this.onClickCreatePerson} type="checkbox" />{' '}
+          <span className="switch-left">+1</span>
+          <span className="switch-right">+1</span>
+        </label>
         <div className="challenge-persons">{this.renderPersons()}</div>
       </div>
     );
