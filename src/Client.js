@@ -109,10 +109,7 @@ export default class Client extends Component {
           className="challenge-person-name"
           onChange={(event) => this.onChangeName(person, event)}
         />
-        <button
-          className="challenge-person-save-name-button"
-          onClick={() => this.onClickSaveName(person)}
-        >
+        <button class="glow-on-hover" type="button">
           Save Name
         </button>
         <Snackbar

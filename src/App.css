@@ -1,5 +1,11 @@
 .challenge {
-  background-color: rgb(164, 100, 247);
+  display: flex;
+  justify-content: center;
+  background-color: rgb(5, 3, 7);
+}
+
+.mid {
+  text-align: center;
 }
 
 .challenge-create-person-button {
@@ -39,15 +45,7 @@
 .rocker {
   display: inline-block;
   position: relative;
-  /*
-  SIZE OF SWITCH
-  ==============
-  All sizes are in em - therefore
-  changing the font-size here
-  will change the size of the switch.
-  See .rocker-small below as example.
-  */
-  font-size: 2em;
+  font-size: 3em;
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
@@ -56,11 +54,6 @@
   height: 4em;
   overflow: hidden;
   border-bottom: 0.5em solid #eee;
-}
-
-.rocker-small {
-  font-size: 0.5em; /* Sizes the switch */
-  margin: 1em;
 }
 
 .rocker::before {
@@ -105,7 +98,7 @@
 .switch-right {
   right: 0.5em;
   bottom: 0;
-  background-color: #bd5757;
+  background-color: #18ca3f;
   color: #fff;
 }
 
@@ -131,7 +124,7 @@
 }
 
 input:checked + .switch-left {
-  background-color: #0084d0;
+  background-color: #18ca3f;
   color: #fff;
   bottom: 0px;
   left: 0.5em;
@@ -174,4 +167,81 @@ input:focus + .switch-left + .switch-right {
 
 input:checked:focus + .switch-left + .switch-right {
   color: #333;
+}
+
+.glow-on-hover {
+  width: 100px;
+  height: 20px;
+  border: none;
+  outline: none;
+  color: #fff;
+  background: #111;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+}
+
+.glow-on-hover:before {
+  content: '';
+  background: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff7300,
+    #fffb00,
+    #48ff00,
+    #00ffd5,
+    #002bff,
+    #7a00ff,
+    #ff00c8,
+    #ff0000
+  );
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  background-size: 400%;
+  z-index: -1;
+  filter: blur(5px);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  animation: glowing 20s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+.glow-on-hover:active {
+  color: #000;
+}
+
+.glow-on-hover:active:after {
+  background: transparent;
+}
+
+.glow-on-hover:hover:before {
+  opacity: 1;
+}
+
+.glow-on-hover:after {
+  z-index: -1;
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #18ca3f;
+  left: 0;
+  top: 0;
+  border-radius: 10px;
+}
+
+@keyframes glowing {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
 }
