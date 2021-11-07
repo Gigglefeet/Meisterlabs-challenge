@@ -17,7 +17,9 @@ export default class Persons {
 
   update(person) {
     const state = this.state.map((entry) => {
-      return entry.id === person.id ? person : entry;
+      return entry.id === person.id && entry.modifyPerson < person.modifyPerson
+        ? person
+        : entry;
     });
 
     return new Persons(state);
@@ -33,7 +35,12 @@ export default class Persons {
 
   swap(personOld, personNew) {
     const state = this.state.map((entry) => {
-      return entry.id === personOld.id ? personNew : entry;
+      return entry.id === personOld.id
+        ? {
+            ...personNew,
+            name: entry.name,
+          }
+        : entry;
     });
 
     return new Persons(state);
@@ -48,3 +55,6 @@ export default class Persons {
     return !isCreate ? this.update(personOld) : this.remove(personOld);
   }
 }
+
+// check if I should change data or not on the person
+// adding a

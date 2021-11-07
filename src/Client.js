@@ -3,6 +3,7 @@ import Persons from './utils/Persons';
 import Server from './Server';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import { TextField } from '@mui/material';
 
 let id = 0;
 
@@ -32,11 +33,12 @@ export default class Client extends Component {
       openSnackBar: false,
     }));
   }
-
+  // This function actually creates the person. With a minus id so it gets created on server.
   createPerson() {
     const person = {
       name: '',
       id: --id,
+      modifyPerson: new Date(),
     };
 
     // Person created instantly on the front-end (no request to server yet)
@@ -47,7 +49,7 @@ export default class Client extends Component {
 
     this.savePerson(person);
   }
-
+  // This handler function calls the create function.
   onClickCreatePerson = () => {
     this.createPerson();
   };
@@ -58,11 +60,13 @@ export default class Client extends Component {
 
   onChangeName(person, event) {
     const name = event.target.value;
+    const modifyPerson = new Date();
 
     this.setState((state) => ({
       persons: state.persons.update({
         ...person,
         name,
+        modifyPerson,
       }),
     }));
   }
@@ -86,7 +90,7 @@ export default class Client extends Component {
   }
 
   onSaveFailure = (personOld, isCreate) => {
-    // Remove the person from front-end
+    // If onSaveFailure then the person is removed from front-end
     this.setState((state) => ({
       persons: state.persons.revertChanges(personOld, isCreate),
     }));
@@ -96,6 +100,7 @@ export default class Client extends Component {
     this.handleOpenSnackbar();
     if (!isCreate) return;
     this.setState((state) => ({
+      // here I changed upsert to swap so I update not add the person.
       persons: state.persons.swap(personOld, personNew),
     }));
   };
@@ -103,13 +108,20 @@ export default class Client extends Component {
   renderPersons() {
     return this.state.persons.get().map((person) => (
       <div key={person.id} className="challenge-person">
-        <span className="challenge-person-id">{person.id}</span>
-        <input
+        <span className="challenge-person-id" />
+        <TextField
+          id="outlined-basic"
+          label="Name"
+          variant="filled"
           value={person.name}
           className="challenge-person-name"
           onChange={(event) => this.onChangeName(person, event)}
         />
-        <button class="glow-on-hover" type="button">
+        <button
+          className="glow-on-hover"
+          type="button"
+          onClick={() => this.onClickSaveName(person)}
+        >
           Save Name
         </button>
         <Snackbar
@@ -135,12 +147,6 @@ export default class Client extends Component {
   render() {
     return (
       <div className="challenge">
-        {/* <button
-          className="challenge-create-person-button"
-          onClick={this.onClickCreatePerson}
-        >
-          Create Person
-        </button> */}
         <label className="rocker">
           <input onClick={this.onClickCreatePerson} type="checkbox" />{' '}
           <span className="switch-left">+1</span>
