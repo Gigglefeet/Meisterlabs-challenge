@@ -55,6 +55,3 @@ export default class Persons {
     return !isCreate ? this.update(personOld) : this.remove(personOld);
   }
 }
-
-// check if I should change data or not on the person
-// adding a
