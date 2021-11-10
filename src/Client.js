@@ -18,13 +18,15 @@ export default class Client extends Component {
     this.state = {
       persons: new Persons(),
       openSnackBar: false,
+      openErrorSnackbar: false,
     };
   }
 
-  handleOpenSnackbar() {
+  handleOpenSnackbar(isCreate) {
     console.log(this.state);
     this.setState((state) => ({
       openSnackBar: true,
+      isCreate,
     }));
   }
 
@@ -33,12 +35,26 @@ export default class Client extends Component {
       openSnackBar: false,
     }));
   }
+
+  handleOpenErrorSnackbar() {
+    console.log(this.state);
+    this.setState((state) => ({
+      openErrorSnackbar: true,
+    }));
+  }
+
+  handleCloseErrorSnackbar() {
+    this.setState((state) => ({
+      openErrorSnackbar: false,
+    }));
+  }
   // This function actually creates the person. With a minus id so it gets created on server.
   createPerson() {
     const person = {
       name: '',
       id: --id,
-      modifyPerson: new Date(),
+      modifyPerson: new Date().getTime(),
+      sent: false,
     };
 
     // Person created instantly on the front-end (no request to server yet)
@@ -60,7 +76,7 @@ export default class Client extends Component {
 
   onChangeName(person, event) {
     const name = event.target.value;
-    const modifyPerson = new Date();
+    const modifyPerson = new Date().getTime();
 
     this.setState((state) => ({
       persons: state.persons.update({
@@ -71,16 +87,22 @@ export default class Client extends Component {
     }));
   }
 
-  savePerson(person) {
+  async savePerson(person) {
     const isCreate = person.id < 0;
-
-    const method = isCreate ? 'post' : 'patch';
-
+    const modifyPerson = new Date().getTime();
+    const method = isCreate && !person.sent ? 'post' : 'patch';
+    await this.setState((state) => ({
+      persons: state.persons.update({
+        ...person,
+        sent: true,
+        modifyPerson,
+      }),
+    }));
     // Send request to server to save person
     // If the response is OK, we do nothing, because the person is already created on the front-end
 
     //If the response is not OK (ex. status: 400), we call this.onSaveFailure
-    Server[method](person)
+    Server[method]({ ...person, modifyPerson })
       .then((personNew) => {
         this.onSaveSuccess(person, personNew, isCreate);
       })
@@ -88,16 +110,16 @@ export default class Client extends Component {
         this.onSaveFailure(person, isCreate);
       });
   }
-
   onSaveFailure = (personOld, isCreate) => {
     // If onSaveFailure then the person is removed from front-end
-    this.setState((state) => ({
-      persons: state.persons.revertChanges(personOld, isCreate),
-    }));
+    this.handleOpenErrorSnackbar();
+    // this.setState((state) => ({
+    //   persons: state.persons.revertChanges(personOld, isCreate),
+    // }));
   };
 
   onSaveSuccess = (personOld, personNew, isCreate) => {
-    this.handleOpenSnackbar();
+    this.handleOpenSnackbar(isCreate);
     if (!isCreate) return;
     this.setState((state) => ({
       // here I changed upsert to swap so I update not add the person.
@@ -108,7 +130,7 @@ export default class Client extends Component {
   renderPersons() {
     return this.state.persons.get().map((person) => (
       <div key={person.id} className="challenge-person">
-        <span className="challenge-person-id" />
+        <span className="challenge-person-id">{person.id}</span>
         <TextField
           id="outlined-basic"
           label="Name"
@@ -137,13 +159,30 @@ export default class Client extends Component {
             }}
             severity="success"
           >
-            Your changes have been saved on the Server!
+            {this.state.isCreate
+              ? 'Created Empty Person'
+              : 'Updated Person successfully'}
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={this.state.openErrorSnackbar}
+          autoHideDuration={6000}
+          onClose={() => {
+            this.handleCloseErrorSnackbar();
+          }}
+        >
+          <Alert
+            onClose={() => {
+              this.handleCloseErrorSnackbar();
+            }}
+            severity="error"
+          >
+            Updating failed
           </Alert>
         </Snackbar>
       </div>
     ));
   }
-
   render() {
     return (
       <div className="challenge">

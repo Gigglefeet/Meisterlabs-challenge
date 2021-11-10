@@ -17,7 +17,7 @@ export default class Persons {
 
   update(person) {
     const state = this.state.map((entry) => {
-      return entry.id === person.id && entry.modifyPerson < person.modifyPerson
+      return entry.id === person.id && entry.modifyPerson <= person.modifyPerson
         ? person
         : entry;
     });
